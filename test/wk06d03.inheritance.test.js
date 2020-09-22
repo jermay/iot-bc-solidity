@@ -1,10 +1,11 @@
-const Workers = artifacts.require("WorkerSolution");
-// const Workers = artifacts.require("WorkerBonusSolution");
+// const Workers = artifacts.require("WorkerSolution");
+const Workers = artifacts.require("WorkerBonusSolution");
 const People = artifacts.require("PeopleSolution");
 
 const BN = web3.utils.BN
 const expect = require('chai').expect;
 const truffleAssert = require('truffle-assertions');
+const { zeroAddress } = require('./testUtils');
 
 describe.only('Inheritance Assignment', () => {
 
@@ -26,7 +27,7 @@ describe.only('Inheritance Assignment', () => {
         const bossAccount = accounts[1];
         const workerAccount = accounts[2];
         console.log(`bossAccount: ${bossAccount}, workerAccount: ${workerAccount}`);
-        
+
         let worker;
         let instance;
         beforeEach(async () => {
@@ -51,7 +52,7 @@ describe.only('Inheritance Assignment', () => {
                 worker.age,
                 worker.height,
                 worker.salary,
-                // boss,
+                boss,
                 { from: from || worker.account }
             );
         }
@@ -129,6 +130,14 @@ describe.only('Inheritance Assignment', () => {
                 expect(result.toString(10)).to.equal('0');
             });
 
+            it.only(`should remove the worker's boss`, async () => {
+                await fire(worker);
+
+                const result = await getBoss(worker.account);
+
+                expect(result).to.equal(zeroAddress);
+            });
+
             it('should delete the person', async () => {
                 await fire(worker);
 
@@ -138,7 +147,7 @@ describe.only('Inheritance Assignment', () => {
             });
 
             describe('bonus', () => {
-                it('should REVERT if the sender is not the workers boss', async()=>{
+                it('should REVERT if the sender is not the workers boss', async () => {
                     const angryCowokerker = accounts[3];
                     await truffleAssert.reverts(
                         fire(worker, angryCowokerker),
