@@ -1,4 +1,4 @@
-const ERC20 = artifacts.require("ERC20");
+const ERC20 = artifacts.require("Token");
 
 const BN = web3.utils.BN
 const expect = require('chai').expect;
@@ -9,7 +9,7 @@ const expTokenName = 'Academy Token';
 const expTokenSymbol = 'ACT';
 const expTokenDecimals = '9';
 
-contract.only('ERC20', async (accounts) => {
+contract('ERC20', async (accounts) => {
     let instance;
     let mintAccount;
     let expAmount;
@@ -45,7 +45,7 @@ contract.only('ERC20', async (accounts) => {
 
     describe('mint, total supply, balance of', () => {
 
-        describe('On deploy', () => {
+        describe.skip('On deploy', () => {
 
             it('should mint 100 tokens to account 1', async () => {
                 const deployed = await ERC20.deployed();
