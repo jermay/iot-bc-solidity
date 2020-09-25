@@ -2,7 +2,7 @@ pragma solidity 0.5.12;
 
 import "./Solution_Ownable.sol";
 
-contract ERC20 is Ownable {
+contract ERC20Solution is OwnableSolution {
     mapping(address => uint256) private _balances;
 
     uint256 private _totalSupply;

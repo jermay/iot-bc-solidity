@@ -1,6 +1,6 @@
 pragma solidity 0.5.12;
 
-contract HelloWorld {
+contract HelloWorldSolution {
     struct Person {
         address creator;
         string name;

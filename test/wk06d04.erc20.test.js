@@ -1,4 +1,4 @@
-const ERC20 = artifacts.require("Token");
+const ERC20 = artifacts.require("ERC20Solution");
 
 const BN = web3.utils.BN
 const expect = require('chai').expect;

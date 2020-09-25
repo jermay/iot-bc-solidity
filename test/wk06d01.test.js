@@ -1,4 +1,4 @@
-const People = artifacts.require("HelloWorld");
+const People = artifacts.require("HelloWorldSolution");
 
 const BN = web3.utils.BN
 const expect = require('chai').expect;

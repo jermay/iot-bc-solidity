@@ -1,6 +1,6 @@
 pragma solidity 0.5.12;
 
-contract PeopleUpdate {
+contract PeopleUpdateSolution {
     address public owner;
 
     constructor() public {

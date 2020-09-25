@@ -1,6 +1,6 @@
 pragma solidity ^0.5.12;
 
-contract Ownable {
+contract OwnableSolution {
     address payable owner;
 
     constructor() public {

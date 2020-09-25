@@ -7,7 +7,7 @@ const expect = require('chai').expect;
 const truffleAssert = require('truffle-assertions');
 const { zeroAddress } = require('./testUtils');
 
-describe.only('Inheritance Assignment', () => {
+describe('Inheritance Assignment', () => {
 
     /*
      * Common wrapped functions
@@ -26,7 +26,7 @@ describe.only('Inheritance Assignment', () => {
     contract('Worker', async (accounts) => {
         const bossAccount = accounts[1];
         const workerAccount = accounts[2];
-        console.log(`bossAccount: ${bossAccount}, workerAccount: ${workerAccount}`);
+        // console.log(`bossAccount: ${bossAccount}, workerAccount: ${workerAccount}`);
 
         let worker;
         let instance;
@@ -130,7 +130,7 @@ describe.only('Inheritance Assignment', () => {
                 expect(result.toString(10)).to.equal('0');
             });
 
-            it.only(`should remove the worker's boss`, async () => {
+            it(`should remove the worker's boss`, async () => {
                 await fire(worker);
 
                 const result = await getBoss(worker.account);
