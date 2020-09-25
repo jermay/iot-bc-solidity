@@ -8,7 +8,7 @@ contract PeopleUpdateSolution {
     }
 
     modifier onlyOnwer {
-        require(owner == msg.sender);
+        require(owner == msg.sender, "only owner");
         _;
     }
 
@@ -39,29 +39,29 @@ contract PeopleUpdateSolution {
         uint256 _age,
         uint256 _height
     ) public {
-        require(_age > 0 && _age < 150);
-        if (people[msg.sender].age == 0) {
-            people[msg.sender].name = _name;
-            people[msg.sender].age = _age;
-            people[msg.sender].height = _height;
+        require(_age > 0 && _age < 150, "invalid age");
 
-            if (_age >= 65) {
-                people[msg.sender].senior = true;
-            }
+        // save old values
+        // in the "create" case these memory allocations are not
+        // necessary but it removes code duplication
+        string memory oldName = people[msg.sender].name;
+        uint256 oldAge = people[msg.sender].age;
+        uint256 oldHeight = people[msg.sender].height;
+        bool oldSenior = people[msg.sender].senior;
+
+        // set person values
+        people[msg.sender].name = _name;
+        people[msg.sender].age = _age;
+        people[msg.sender].height = _height;
+
+        if (_age >= 65) {
+            people[msg.sender].senior = true;
+        }
+
+        if (oldAge == 0) {
+            // age can never be zero so must be creating
             emit personCreated(_name, people[msg.sender].senior);
         } else {
-            string memory oldName = people[msg.sender].name;
-            uint256 oldAge = people[msg.sender].age;
-            uint256 oldHeight = people[msg.sender].height;
-            bool oldSenior = people[msg.sender].senior;
-
-            people[msg.sender].name = _name;
-            people[msg.sender].age = _age;
-            people[msg.sender].height = _height;
-
-            if (_age >= 65) {
-                people[msg.sender].senior = true;
-            }
             emit personUpdated(
                 oldName,
                 oldAge,
@@ -98,7 +98,7 @@ contract PeopleUpdateSolution {
         bool isSenior = people[_creator].senior;
         delete (people[_creator]);
         assert(people[_creator].age == 0);
-        emit personDeleted(name, isSenior, _creator);
+        emit personDeleted(name, isSenior, msg.sender);
     }
 }
 

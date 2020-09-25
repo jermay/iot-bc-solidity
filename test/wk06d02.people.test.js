@@ -51,6 +51,35 @@ contract.only('Poeple', async (accounts) => {
         expect(actual.senior).to.equal(expected.senior, 'senior');
     }
 
+    function deletePerson(address, _from) {
+        return instance.deletePerson(
+            address,
+            { from: _from || accounts[0] }
+        );
+    }
+
+    function verifyCreateEvent(event, person) {
+        return event.name == person.name &&
+            event.senior == person.senior
+    }
+
+    function verifyUpdateEvent(event, oldValues, newValues) {
+        return event.oldName == oldValues.name &&
+            event.oldSenior == oldValues.senior &&
+            event.oldAge.toString(10) == oldValues.age.toString(10) &&
+            event.oldHeight.toString(10) == oldValues.height.toString(10) &&
+            event.newName == newValues.name &&
+            event.newSenior == newValues.senior &&
+            event.newAge.toString(10) == newValues.age.toString(10) &&
+            event.newHeight.toString(10) == newValues.height.toString(10)
+    }
+
+    function verifyDeleteEvent(event, person) {
+        return event.name == person.name &&
+            event.senior == person.senior &&
+            event.deletedBy == accounts[0]
+    }
+
     describe('create person', () => {
         it('should store the person in the array', async () => {
             await createPerson(youngPerson);
@@ -74,9 +103,7 @@ contract.only('Poeple', async (accounts) => {
             truffleAssert.eventEmitted(
                 result,
                 'personCreated',
-                event => event.name == youngPerson.name &&
-                    event.senior == youngPerson.senior
-
+                event => verifyCreateEvent(event, youngPerson)
             );
         });
 
@@ -107,15 +134,7 @@ contract.only('Poeple', async (accounts) => {
                 truffleAssert.eventEmitted(
                     result,
                     'personUpdated',
-                    event => event.oldName == youngPerson.name &&
-                        event.oldSenior == youngPerson.senior &&
-                        event.oldAge.toString(10) == youngPerson.age.toString(10) &&
-                        event.oldHeight.toString(10) == youngPerson.height.toString(10) &&
-                        event.newName == updatedPerson.name &&
-                        event.newSenior == updatedPerson.senior &&
-                        event.newAge.toString(10) == updatedPerson.age.toString(10) &&
-                        event.newHeight.toString(10) == updatedPerson.height.toString(10)
-
+                    event => verifyUpdateEvent(event, youngPerson, updatedPerson)
                 );
             });
         });
@@ -132,4 +151,37 @@ contract.only('Poeple', async (accounts) => {
         });
     });
 
+    describe('delete person', () => {
+        beforeEach(async () => {
+            await createPerson(youngPerson);
+        });
+
+        it('should remove the person from the mapping', async () => {
+            await deletePerson(youngPerson.creator);
+
+            const result = await getPerson(youngPerson.creator);
+
+            expect(result.name).to.equal('');
+            expect(result.age.toString(10)).to.equal('0');
+        });
+
+        it('should emit a personDeleted event', async () => {
+            const result = await deletePerson(youngPerson.creator);
+
+            truffleAssert.eventEmitted(
+                result,
+                'personDeleted',
+                event => verifyDeleteEvent(event, youngPerson)
+            );
+        });
+
+        it('should REVERT if the sender is NOT the owner', async () => {
+            const userAccount = accounts[3];
+
+            await truffleAssert.reverts(
+                deletePerson(youngPerson.creator, userAccount),
+                truffleAssert.ErrorType.REVERT,
+            );
+        });
+    });
 });
