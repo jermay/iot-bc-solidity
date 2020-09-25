@@ -4,7 +4,7 @@ const BN = web3.utils.BN
 const expect = require('chai').expect;
 const truffleAssert = require('truffle-assertions');
 
-contract('Poeple', async (accounts) => {
+contract.only('Poeple', async (accounts) => {
     let instance;
     let youngPerson;
     let seniorPerson;
@@ -26,6 +26,10 @@ contract('Poeple', async (accounts) => {
         instance = await People.new();
     });
 
+    /*
+     * Wrapper functions
+     * modify if necessary to adapt to student contract functions
+    */
     function createPerson(person) {
         return instance.createPerson(
             person.name,
@@ -36,7 +40,15 @@ contract('Poeple', async (accounts) => {
     }
 
     function getPerson(from) {
-        return instance.getPerson({ from: from || accounts[0] });
+        return instance.getPerson(
+            { from: from || accounts[0] });
+    }
+
+    function expectPerson(actual, expected) {
+        expect(actual.name).to.equal(expected.name, 'name');
+        expect(actual.age.toString(10)).to.equal(expected.age.toString(10), 'age');
+        expect(actual.height.toString(10)).to.equal(expected.height.toString(10), 'height');
+        expect(actual.senior).to.equal(expected.senior, 'senior');
     }
 
     describe('create person', () => {
@@ -45,10 +57,7 @@ contract('Poeple', async (accounts) => {
 
             const actual = await getPerson(youngPerson.creator);
 
-            expect(actual.name).to.equal(youngPerson.name, 'name');
-            expect(actual.age.toString(10)).to.equal(youngPerson.age.toString(10), 'age');
-            expect(actual.height.toString(10)).to.equal(youngPerson.height.toString(10), 'height');
-            expect(actual.senior).to.equal(youngPerson.senior, 'senior');
+            expectPerson(actual, youngPerson);
         });
 
         it('should set senior to true when 65 or older', async () => {
@@ -56,7 +65,7 @@ contract('Poeple', async (accounts) => {
 
             const actual = await getPerson(seniorPerson.creator);
 
-            expect(actual.senior).to.equal(true, 'senior');
+            expectPerson(actual, seniorPerson);
         });
 
         it('should emit a personCreated event', async () => {
@@ -88,9 +97,8 @@ contract('Poeple', async (accounts) => {
                 await createPerson(updatedPerson);
 
                 const result = await getPerson(youngPerson.creator);
-                expect(result.name).to.equal(updatedPerson.name);
-                expect(result.age.toString(10)).to.equal(updatedPerson.age.toString(10));
-                expect(result.height.toString(10)).to.equal(updatedPerson.height.toString(10));
+
+                expectPerson(result, updatedPerson);
             });
 
             it('should emit a personUpdated event', async () => {
@@ -120,10 +128,7 @@ contract('Poeple', async (accounts) => {
 
             const actual = await getPerson(youngPerson.creator);
 
-            expect(actual.name).to.equal(youngPerson.name, 'name');
-            expect(actual.age.toString(10)).to.equal(youngPerson.age.toString(10), 'age');
-            expect(actual.height.toString(10)).to.equal(youngPerson.height.toString(10), 'height');
-            expect(actual.senior).to.equal(youngPerson.senior, 'senior');
+            expectPerson(actual, youngPerson);
         });
     });
 

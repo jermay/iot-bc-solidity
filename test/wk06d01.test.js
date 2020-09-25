@@ -2,7 +2,6 @@ const People = artifacts.require("HelloWorldSolution");
 
 const BN = web3.utils.BN
 const expect = require('chai').expect;
-const truffleAssert = require('truffle-assertions');
 
 contract('Poeple', async (accounts) => {
     let instance;
@@ -26,6 +25,10 @@ contract('Poeple', async (accounts) => {
         instance = await People.new();
     });
 
+    /*
+     * Wrapper functions
+     * modify if necessary to adapt to student contract functions
+    */
     function createPerson(person) {
         return instance.createPerson(
             person.name,
@@ -33,6 +36,10 @@ contract('Poeple', async (accounts) => {
             person.height,
             { from: person.creator }
         );
+    }
+
+    function getPerson(id) {
+        return instance.getPerson(id);
     }
 
     function getPersonCount(address) {
@@ -43,32 +50,29 @@ contract('Poeple', async (accounts) => {
         return instance.getIdsByAddress(address);
     }
 
+    function expectPerson(actual, expected) {
+        expect(actual.name).to.equal(expected.name, 'name');
+        expect(actual.age.toString(10)).to.equal(expected.age.toString(10), 'age');
+        expect(actual.height.toString(10)).to.equal(expected.height.toString(10), 'height');
+        expect(actual.senior).to.equal(expected.senior, 'senior');
+        expect(actual.creator).to.equal(expected.creator, 'creator');
+    }
+
     describe('create person', () => {
         it('should store the person in the array', async () => {
             await createPerson(youngPerson);
 
-            const actual = await instance.getPerson(0);
+            const actual = await getPerson(0);
 
-            expect(actual.name).to.equal(youngPerson.name, 'name');
-            expect(actual.age.toString(10)).to.equal(youngPerson.age.toString(10), 'age');
-            expect(actual.height.toString(10)).to.equal(youngPerson.height.toString(10), 'height');
-            expect(actual.senior).to.equal(youngPerson.senior, 'senior');
+            expectPerson(actual, youngPerson);
         });
 
         it('should set senior to true when 65 or older', async () => {
             await createPerson(seniorPerson);
 
-            const actual = await instance.getPerson(0);
+            const actual = await getPerson(0);
 
-            expect(actual.senior).to.equal(true, 'senior');
-        });
-
-        it('should set the creator to the sender', async () => {
-            await createPerson(youngPerson);
-
-            const actual = await instance.getPerson(0);
-
-            expect(actual.creator).to.equal(youngPerson.creator, 'creator');
+            expectPerson(actual, seniorPerson);
         });
     });
 
@@ -77,16 +81,14 @@ contract('Poeple', async (accounts) => {
             await createPerson(seniorPerson);
             await createPerson(youngPerson);
 
-            const actual = await instance.getPerson(1);
+            const actual = await getPerson(1);
 
-            expect(actual.name).to.equal(youngPerson.name, 'name');
-            expect(actual.age.toString(10)).to.equal(youngPerson.age.toString(10), 'age');
-            expect(actual.height.toString(10)).to.equal(youngPerson.height.toString(10), 'height');
-            expect(actual.senior).to.equal(youngPerson.senior, 'senior');
+            expectPerson(actual, youngPerson);
         });
     });
 
     describe('Bonus #1', () => {
+
         it('should increment the count for sender when creating a person', async () => {
             const creator = accounts[1];
             youngPerson.creator = creator;
