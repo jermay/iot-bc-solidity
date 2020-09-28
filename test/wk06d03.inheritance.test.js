@@ -1,13 +1,14 @@
 // const Workers = artifacts.require("WorkerSolution");
+// const People = artifacts.require("PeopleSolution");
 const Workers = artifacts.require("WorkerBonusSolution");
-const People = artifacts.require("PeopleSolution");
+const People = artifacts.require("PeopleSolutionBonus");
 
 const BN = web3.utils.BN
 const expect = require('chai').expect;
 const truffleAssert = require('truffle-assertions');
 const { zeroAddress } = require('./testUtils');
 
-describe('Inheritance Assignment', () => {
+describe.only('Inheritance Assignment', () => {
 
     /*
      * Common wrapped functions
@@ -26,6 +27,7 @@ describe('Inheritance Assignment', () => {
     contract('Worker', async (accounts) => {
         const bossAccount = accounts[1];
         const workerAccount = accounts[2];
+        const bossCreatesWorkers = true; // set to true for bonus solution
         // console.log(`bossAccount: ${bossAccount}, workerAccount: ${workerAccount}`);
 
         let worker;
@@ -47,13 +49,15 @@ describe('Inheritance Assignment', () => {
          * Wrapper functions
         */
         async function createWorker(boss, worker, from) {
+            const createWorkersFrom = bossCreatesWorkers ?
+                boss : worker.account;
             return instance.createWorker(
                 worker.name,
                 worker.age,
                 worker.height,
                 worker.salary,
-                boss,
-                { from: from || worker.account }
+                worker.account,
+                { from: from || createWorkersFrom }
             );
         }
 
@@ -108,9 +112,9 @@ describe('Inheritance Assignment', () => {
                     expect(result).to.equal(bossAccount);
                 });
 
-                it('should REVERT if sender and boss are the same (also implies boss cannot create workers; i.e. worker just create themselves!)', async () => {
+                it('should REVERT if sender and boss are the same', async () => {
                     await truffleAssert.reverts(
-                        createWorker(worker.account, worker),
+                        createWorker(worker.account, worker, worker.account),
                         truffleAssert.ErrorType.REVERT
                     );
                 });
@@ -130,14 +134,6 @@ describe('Inheritance Assignment', () => {
                 expect(result.toString(10)).to.equal('0');
             });
 
-            it(`should remove the worker's boss`, async () => {
-                await fire(worker);
-
-                const result = await getBoss(worker.account);
-
-                expect(result).to.equal(zeroAddress);
-            });
-
             it('should delete the person', async () => {
                 await fire(worker);
 
@@ -154,6 +150,15 @@ describe('Inheritance Assignment', () => {
                         truffleAssert.ErrorType.REVERT
                     )
                 });
+
+                it(`should remove the worker's boss`, async () => {
+                    await fire(worker);
+    
+                    const result = await getBoss(worker.account);
+    
+                    expect(result).to.equal(zeroAddress);
+                });
+    
             });
         });
     });

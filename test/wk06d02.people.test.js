@@ -4,7 +4,7 @@ const BN = web3.utils.BN
 const expect = require('chai').expect;
 const truffleAssert = require('truffle-assertions');
 
-contract.only('Poeple', async (accounts) => {
+contract('Poeple', async (accounts) => {
     let instance;
     let youngPerson;
     let seniorPerson;
